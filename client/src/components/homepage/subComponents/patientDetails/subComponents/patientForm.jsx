@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import Box from '@mui/material/Box';
+import TextField from '@mui/material/TextField';
+import MenuItem from '@mui/material/MenuItem';
+import { Row, Col } from 'react-bootstrap';
 import {
     MDBRow,
     MDBCol,
@@ -14,6 +18,9 @@ function PatientForm() {
     const [phoneNumber, setPhoneNumber] = useState('');
     const [bloodType, setBloodType] = useState('');
     const [error, setError] = useState({});
+
+    const genderOptions = ['Male','Female','Other'];
+    const bloodTypeOptions = ['A+', 'A-', 'B+', 'B-', 'AB+', 'AB-', 'O+', 'O-'];
 
     const validateForm = () => {
         let errors = {};
@@ -98,27 +105,76 @@ function PatientForm() {
     };
     return (
         <form onSubmit={handleSubmit}>
-            <MDBRow className="mb-3 mt-3">
-                <MDBCol>
-                    <MDBInput label="Name" type="text" value={name} onChange={(e) => setName(e.target.value)} required />
-                </MDBCol>
-            </MDBRow>
-            <MDBRow className="mb-3">
-                <MDBCol>
-                    <MDBInput label="Date of Birth" type="date" value={dateOfBirth} onChange={(e) => setDateOfBirth(e.target.value)} required />
-                </MDBCol>
-                <MDBCol>
-                    <MDBInput label="Gender" type="text" value={gender} onChange={(e) => setGender(e.target.value)} required />
-                </MDBCol>
-            </MDBRow>
-            <MDBRow className="mb-3">
-                <MDBCol>
-                    <MDBInput label="Phone Number" type="text" value={phoneNumber} onChange={(e) => setPhoneNumber(e.target.value)} required />
-                </MDBCol>
-                <MDBCol>
-                    <MDBInput label="Blood Type" type="text" value={bloodType} onChange={(e) => setBloodType(e.target.value)} required />
-                </MDBCol>
-            </MDBRow>
+            <Row className="mb-3 mt-3">
+                <Col>
+                    <TextField
+                        required
+                        fullWidth
+                        id="outlined-required"
+                        label="Name"
+                        defaultValue={name}
+                        onChange={(e) => setName(e.target.value)}
+                    />
+                </Col>
+            </Row>
+            <Row className="mb-3">
+                <Col>
+                    <TextField
+                        required
+                        fullWidth
+                        id="outlined-required"
+                        label="Date of Birth"
+                        type="date"
+                        defaultValue={dateOfBirth}
+                        onChange={(e) => setDateOfBirth(e.target.value)}
+                        InputLabelProps={{
+                            shrink: true,
+                        }}
+                    />
+                </Col>
+                <Col>
+                    <TextField
+                        required
+                        fullWidth
+                        select
+                        id="outlined-required"
+                        label="Gender"
+                        defaultValue={gender}
+                        onChange={(e) => setGender(e.target.value)}
+                    >
+                        {genderOptions.map((option,index)=>{
+                            return <MenuItem key={index} value={option}>{option}</MenuItem>
+                        })}
+                    </TextField>
+                </Col>
+            </Row>
+            <Row className="mb-3">
+                <Col>
+                    <TextField
+                        required
+                        fullWidth
+                        id="outlined-required"
+                        label="Phone Number"
+                        defaultValue={phoneNumber}
+                        onChange={(e) => setPhoneNumber(e.target.value)}
+                    />
+                </Col>
+                <Col>
+                    <TextField
+                        required
+                        fullWidth
+                        select
+                        id="outlined-required"
+                        label="Blood Type"
+                        defaultValue={bloodType}
+                        onChange={(e) => setBloodType(e.target.value)}
+                    >
+                        {bloodTypeOptions.map((option,index)=>{
+                            return <MenuItem key={index} value={option}>{option}</MenuItem>
+                        })}
+                    </TextField>
+                </Col>
+            </Row>
             {error && Object.keys(error).length > 0 && (
                 <div className="alert alert-danger" role="alert" style={{ padding: '5px 10px', margin: '10px 0' }}>
                     {Object.values(error).map((errorMessage, index) => (
@@ -126,12 +182,12 @@ function PatientForm() {
                     ))}
                 </div>
             )}
-            <MDBRow className="mb-3 text-center">
-                <MDBCol>
-                    <MDBBtn type="submit">Add Patient Details</MDBBtn>
-                </MDBCol>
-            </MDBRow>
-           
+            <Row className="mb-3 text-center">
+                <Col>
+                    <button type="submit" className="btn btn-primary">Add Patient Details</button>
+                </Col>
+            </Row>
+
         </form>
     )
 }

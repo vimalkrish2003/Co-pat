@@ -3,7 +3,7 @@ import json
 from django.db import transaction
 from django.http import JsonResponse
 from django.shortcuts import render
-from healthcare_app.models import Guardian,Patient,Prescription,Medication
+from healthcare_app.models import Guardian,Patient,Prescription,Medication,Frequency
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.models import User
@@ -187,7 +187,6 @@ def view_prescriptions(request, patient_id):
     try:
         # Assuming the request.user is linked to a Guardian instance
         guardian = Guardian.objects.get(UserID=request.user)
-        
         # Check if the patient belongs to the logged-in guardian
         patient = Patient.objects.filter(GuardianID=guardian, PatientID=patient_id).first()
         if not patient:
@@ -197,19 +196,25 @@ def view_prescriptions(request, patient_id):
         prescriptions = Prescription.objects.filter(PatientID=patient).values(
             'PrescriptionID', 'Condition', 'DoctorName'
         )
-        
         # Fetching medications for each prescription
         prescriptions_list = list(prescriptions)
         for prescription in prescriptions_list:
             medications = Medication.objects.filter(PrescriptionID=prescription['PrescriptionID']).values(
-                'MedicationName', 'Label', 'Dosage', 'NotificationTime', 'Frequency', 'StartDate', 'EndDate'
+                'MedicationID','MedicationName', 'Label', 'Dosage', 'NotificationTime','StartDate', 'EndDate'
             )
-            prescription['Medications'] = list(medications)
-        
+            medications_list=list(medications)
+            #get the frequency of medication
+            for medication in medications_list:
+                frequency_instance = Frequency.objects.get(MedicationID=medication['MedicationID'])
+                days_list =[]
+                days_list.extend(frequency_instance.get_schedule_days())
+                medication['Frequency'] = days_list
+            prescription['Medications'] = medications_list
         return JsonResponse({'prescriptions': prescriptions_list}, status=200)
     except Guardian.DoesNotExist:
         return JsonResponse({'message': 'Guardian not found'}, status=404)
     except Exception as e:
+        print(e)
         return JsonResponse({'message': f'An error occurred: {str(e)}'}, status=500)
 
 
@@ -241,17 +246,22 @@ def add_prescription(request, patient_id):
                 
                 # Create Medication instances for each medication in the request
                 for medication in prescription_data['Medications']:
-                    Medication.objects.create(
+                    medication_instance=Medication.objects.create(
                     PrescriptionID=prescription_instance,
                     MedicationName=medication['MedicationName'],
                     Label=medication['Label'],
                     Dosage=medication['Dosage'],
                     NotificationTime=medication['NotificationTime'],
-                    Frequency=medication['Frequency'],
                     StartDate=medication['StartDate'],
                     EndDate=medication['EndDate']
                     )
-            
+                    
+                    #Add the frequency of medication
+                    frequency = medication['Frequency'] #List of days that should be true like Monday,Wednesday etc
+                    frequency_instance =Frequency.objects.create(MedicationID=medication_instance)
+                    for day in frequency:
+                        setattr(frequency_instance,day,True)
+                    frequency_instance.save()
             return JsonResponse({'message': 'Prescription and medications added successfully'}, status=201)
         except Guardian.DoesNotExist:
             return JsonResponse({'message': 'Guardian not found'}, status=404)

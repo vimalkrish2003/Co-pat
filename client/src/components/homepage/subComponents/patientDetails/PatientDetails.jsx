@@ -24,7 +24,7 @@ import {
 
 
 const PatientDetails = () => {
-  const [showForm, setShowForm] = useState(false);
+  const [showPatientForm, setShowPatientForm] = useState(false);
   const [showPrescriptionForm, setShowPrescriptionForm] = useState(false);
   const [selectedPatient, setSelectedPatient] = useState(null);
   const [importButtonClicked, setImportButtonClicked] = useState(false);
@@ -46,7 +46,6 @@ const PatientDetails = () => {
         const response = await axios.get(`/patient/view/?page=${currentPage}&patientsPerPage=${patientsPerPage}`);
         setPatients(response.data.patients);
         setTotalPages(response.data.totalPages);
-        console.log(response.data.patients);
       } catch (err) {
         console.log(err);
       }
@@ -67,7 +66,7 @@ const PatientDetails = () => {
   };
 
   const toggleImportButton = () => setImportButtonClicked(!importButtonClicked);
-  const toggleFormVisibility = () => setShowForm(!showForm);
+  const toggleFormVisibility = () => setShowPatientForm(!showPatientForm);
 
   const togglePrescriptionFormVisibility = (patient) => {
     setSelectedPatient(patient);
@@ -147,7 +146,7 @@ const PatientDetails = () => {
           </MDBRow>
         </form>
       }
-      {showForm && <PatientForm />}
+      {showPatientForm && <PatientForm/>}
       {
         showPrescriptionForm && selectedPatient != null && (
           <PrescriptionForm

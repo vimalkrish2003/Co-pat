@@ -18,7 +18,7 @@ const PrescriptionsForm = ({ setShowPrescriptionForm, patientID, patientName }) 
                 Label: '',
                 Dosage: '',
                 NotificationTime: '00:00',
-                Frequency: '',
+                Frequency: [],
                 StartDate: '',
                 EndDate: ''
             }]
@@ -42,10 +42,6 @@ const PrescriptionsForm = ({ setShowPrescriptionForm, patientID, patientName }) 
         }
         fetchPrescriptions();
     }, [patientID])
-
-    useEffect(() => {
-        console.log("Prescriptions From Prescriptions Component\n: ", prescriptions);
-    }, [prescriptions])
 
 
     const handleSubmit = async (e) => {
@@ -71,16 +67,12 @@ const PrescriptionsForm = ({ setShowPrescriptionForm, patientID, patientName }) 
 
         // Check if the last prescription in the list is filled out
         const lastPrescription = prescriptions[prescriptions.length - 1];
-        const isLastPrescriptionFilled = lastPrescription && Object.keys(lastPrescription).every(key => {
-            if (key === 'Medications') {
-                // For Medications, check if the last medication is filled out
-                const lastMedication = lastPrescription.Medications[lastPrescription.Medications.length - 1];
-                return lastMedication && Object.keys(lastMedication).every(medKey => lastMedication[medKey].trim() !== '');
-            }
-            return lastPrescription[key].trim() !== '';
-        });
+        const isLastPrescriptionFilled = lastPrescription && lastPrescription.DoctorName.trim() !== ''
+        const lastMedication = lastPrescription.Medications[lastPrescription.Medications.length - 1];
+        const isLastMedicationFilled = lastMedication && lastMedication.MedicationName.trim() !== '';
 
-        if (isLastPrescriptionFilled || prescriptions.length === 0) {
+
+        if ((isLastPrescriptionFilled && isLastMedicationFilled) || prescriptions.length === 0) {
             console.log('Adding new prescription');
             setPrescriptions([...prescriptions, {
                 Condition: '',
@@ -90,7 +82,7 @@ const PrescriptionsForm = ({ setShowPrescriptionForm, patientID, patientName }) 
                     Label: '',
                     Dosage: '',
                     NotificationTime: '00:00',
-                    Frequency: '',
+                    Frequency: [],
                     StartDate: '',
                     EndDate: ''
                 }]
@@ -125,7 +117,7 @@ const PrescriptionsForm = ({ setShowPrescriptionForm, patientID, patientName }) 
         <MDBContainer className='mt-3 main-container'>
             <MDBRow className='d-flex justify-content-end'>
                 <MDBCol>
-                    <h6>{patientName}</h6>
+                    <h5><strong>{patientName}</strong></h5>
                 </MDBCol>
                 <MDBCol className='d-flex justify-content-end'>
                     <img src={closeIcon} className='custom-close-icon' alt='Close' onClick={handleClose} />

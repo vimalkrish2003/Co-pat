@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'auth_app',
     'healthcare_app',
     'file_handler',
+    'telegram_bot',
 ]
 
 # Cache configuration
