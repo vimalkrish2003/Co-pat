@@ -42,7 +42,6 @@ def update_guardian(request):
         user = request.user
         guardian_data = json.loads(request.body)
         guardian = Guardian.objects.get(UserID=user)
-
         guardian.FirstName = guardian_data.get('FirstName', guardian.FirstName)
         guardian.LastName = guardian_data.get('LastName', guardian.LastName)
         guardian.PhoneNumber = guardian_data.get('PhoneNumber', guardian.PhoneNumber)
@@ -77,6 +76,42 @@ def view_guardian(request):
     except Guardian.DoesNotExist:
         error_message = 'Guardian not found'
         return JsonResponse({'profileEmpty': True, 'message': error_message}, status=460)
+
+@csrf_exempt
+@login_required
+def get_guardian_notification_status(request):
+    if request.method == 'GET':
+        try:
+            guardian = request.user.guardian
+            return JsonResponse({
+                'remindGuardian': guardian.RemindGuardian,
+                'remindPatient': guardian.RemindPatient
+            }, status=200)
+        except Guardian.DoesNotExist:
+            return JsonResponse({'message': 'Guardian not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'message': f'An error occurred: {str(e)}'}, status=500)
+    else:
+        return JsonResponse({'message': 'Invalid request method'}, status=405)
+
+@csrf_exempt
+@login_required
+def set_guardian_notification_status(request):
+    if request.method == 'POST':
+        try:
+            guardian = request.user.guardian
+            data = json.loads(request.body)
+            guardian.RemindGuardian = data.get('remindGuardian', guardian.RemindGuardian)
+            guardian.RemindPatient = data.get('remindPatient', guardian.RemindPatient)
+            guardian.save()
+            return JsonResponse({'message': 'Notification status updated successfully'}, status=200)
+        except Guardian.DoesNotExist:
+            return JsonResponse({'message': 'Guardian not found'}, status=404)
+        except Exception as e:
+            return JsonResponse({'message': f'An error occurred: {str(e)}'}, status=500)
+    else:
+        return JsonResponse({'message': 'Invalid request method'}, status=405)
+
 
 
 

@@ -7,8 +7,11 @@ class Guardian(models.Model):
     LastName = models.CharField(max_length=255)
     UserID = models.OneToOneField(User, on_delete=models.CASCADE) 
     PhoneNumber = models.CharField(max_length=20)
+    ChatID=models.CharField(max_length=255,default=None)
     Address = models.TextField()
     RelationshipToPatient = models.CharField(max_length=255)
+    RemindGuardian = models.BooleanField(default=False)
+    RemindPatient = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.FirstName} {self.LastName}"
@@ -21,6 +24,7 @@ class Patient(models.Model):
     DateOfBirth = models.DateField()
     Gender = models.CharField(max_length=10)
     PhoneNumber = models.CharField(max_length=20)
+    ChatID=models.CharField(max_length=255,default=None)
     BloodType = models.CharField(max_length=5) 
 
     def __str__(self):
